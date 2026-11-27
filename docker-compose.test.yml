@@ -1,0 +1,11 @@
+services:
+  web-test:
+    image: nginx:1.27-alpine
+    ports:
+      - "127.0.0.1:8081:80"
+  dns-test:
+    build: ./docker/dns-lan
+    ports:
+      - "127.0.0.1:5353:53/udp"
+    volumes:
+      - ./tests/dnsmasq.test.conf:/etc/dnsmasq.conf:ro
