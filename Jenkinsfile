@@ -56,7 +56,7 @@ pipeline {
                 sh '''
                     mkdir -p reports
                     OPTS="--ignore-unfixed"
-                    for IMG in dns-lan:${IMAGE_TAG} nginx:1.27-alpine; do
+                    for IMG in dns-lan:${IMAGE_TAG} nginx:alpine; do
                         NAME=$(echo $IMG | tr ':/' '--')
                         trivy image $OPTS --severity HIGH,CRITICAL --format json \
                             -o reports/trivy-$NAME.json $IMG
@@ -66,7 +66,7 @@ pipeline {
             }
         }
 
-        stage('Deploy Test') {
+       stage('Deploy Test') {
             steps {
                 sh 'docker compose -p netdevops-test -f docker-compose.test.yml up -d --build'
                 sh 'sleep 5'

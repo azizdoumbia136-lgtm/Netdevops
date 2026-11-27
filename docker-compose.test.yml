@@ -1,6 +1,6 @@
 services:
   web-test:
-    image: nginx:1.27-alpine
+    image: nginx:alpine
     ports:
       - "127.0.0.1:8081:80"
   dns-test:
