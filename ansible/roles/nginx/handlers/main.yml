@@ -1,0 +1,6 @@
+---
+- name: Redemarrer le web
+  ansible.builtin.command:
+    cmd: docker compose restart
+    chdir: /opt/web-dmz
+  changed_when: true

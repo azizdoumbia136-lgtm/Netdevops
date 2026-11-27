@@ -1,0 +1,13 @@
+services:
+  dns:
+    build: .
+    image: dns-lan:1.0
+    container_name: dns-lan
+    restart: unless-stopped
+
+    ports:
+      - "{{ dns_ip }}:53:53/udp"
+      - "{{ dns_ip }}:53:53/tcp"
+
+    volumes:
+      - ./dnsmasq.conf:/etc/dnsmasq.conf:ro

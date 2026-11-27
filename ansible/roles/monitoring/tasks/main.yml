@@ -1,0 +1,42 @@
+---
+- name: Creer les dossiers du monitoring
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - /opt/monitoring
+    - /opt/monitoring/prometheus
+    - /opt/monitoring/grafana/provisioning/datasources
+
+- name: Deployer la configuration Prometheus
+  ansible.builtin.template:
+    src: prometheus.yml.j2
+    dest: /opt/monitoring/prometheus/prometheus.yml
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Redemarrer Prometheus
+
+- name: Declarer Prometheus comme source de donnees Grafana
+  ansible.builtin.copy:
+    src: datasource.yml
+    dest: /opt/monitoring/grafana/provisioning/datasources/prometheus.yml
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Deployer le fichier Docker Compose
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: /opt/monitoring/docker-compose.yml
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Lancer Prometheus et Grafana
+  community.docker.docker_compose_v2:
+    project_src: /opt/monitoring
+    state: present

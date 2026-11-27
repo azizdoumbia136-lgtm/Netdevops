@@ -1,0 +1,19 @@
+net_dmz: 172.20.1.0/24
+net_lan: 172.20.2.0/24
+net_mgmt: 172.20.3.0/24
+net_wan: 172.20.9.0/24
+
+fw_wan_ip: 172.20.9.1
+
+web_ip: 172.20.1.10
+dns_ip: 172.20.2.10
+
+web_domain: web.pme.local
+lab_domain: pme.local
+
+grafana_admin_password: "{{ vault_grafana_admin_password }}"
+
+prometheus_targets:
+  - 172.20.3.1:9100
+  - 172.20.1.10:9100
+  - 172.20.3.20:9100

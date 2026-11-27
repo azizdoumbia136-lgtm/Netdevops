@@ -1,0 +1,58 @@
+#!/usr/sbin/nft -f
+
+# Fichier genere par Ansible - ne pas modifier a la main
+
+flush ruleset
+
+table inet filter {
+
+    chain input {
+        type filter hook input priority 0;
+        policy drop;
+
+        ct state established,related accept
+
+        iifname "lo" accept
+
+        ip protocol icmp accept
+
+        ip saddr {{ net_mgmt }} tcp dport { 22, 9100 } accept
+
+        limit rate 5/minute log prefix "nft-input-drop: "
+    }
+
+    chain forward {
+        type filter hook forward priority 0;
+        policy drop;
+
+        ct state established,related accept
+
+        # WAN vers serveur Web
+        ip saddr {{ net_wan }} ip daddr {{ web_ip }} tcp dport { 80, 443 } accept
+
+        # LAN vers serveur Web
+        ip saddr {{ net_lan }} ip daddr {{ web_ip }} tcp dport { 80, 443 } accept
+
+        # Administration depuis MGMT
+        ip saddr {{ net_mgmt }} accept
+
+        # Journalisation des flux refuses
+        limit rate 5/minute log prefix "nft-forward-drop: "
+    }
+
+    chain output {
+        type filter hook output priority 0;
+        policy accept;
+    }
+}
+
+table ip nat {
+
+    chain prerouting {
+        type nat hook prerouting priority -100;
+        policy accept;
+
+        # Redirection HTTP et HTTPS vers le serveur Web
+        ip daddr {{ fw_wan_ip }} tcp dport { 80, 443 } dnat to {{ web_ip }}
+    }
+}

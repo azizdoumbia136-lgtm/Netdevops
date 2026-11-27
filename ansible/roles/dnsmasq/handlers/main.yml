@@ -1,0 +1,6 @@
+---
+- name: Redemarrer le DNS
+  ansible.builtin.command:
+    cmd: docker compose restart
+    chdir: /opt/dns-lan
+  changed_when: true

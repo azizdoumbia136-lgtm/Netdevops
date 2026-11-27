@@ -1,0 +1,38 @@
+---
+- name: Creer le dossier du service DNS
+  ansible.builtin.file:
+    path: /opt/dns-lan
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Copier le Dockerfile depuis le depot
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../docker/dns-lan/Dockerfile"
+    dest: /opt/dns-lan/Dockerfile
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Deployer la configuration dnsmasq
+  ansible.builtin.template:
+    src: dnsmasq.conf.j2
+    dest: /opt/dns-lan/dnsmasq.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Redemarrer le DNS
+
+- name: Deployer le fichier Docker Compose
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: /opt/dns-lan/docker-compose.yml
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Construire et lancer le conteneur DNS
+  community.docker.docker_compose_v2:
+    project_src: /opt/dns-lan
+    state: present

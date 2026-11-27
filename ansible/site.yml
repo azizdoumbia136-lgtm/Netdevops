@@ -1,0 +1,36 @@
+---
+- name: Socle commun sur toutes les VM
+  hosts: all
+  become: true
+  roles:
+    - common
+
+- name: Docker sur les VM qui font tourner des conteneurs
+  hosts: "dmz:lan:mgmt"
+  become: true
+  roles:
+    - docker
+
+- name: Pare-feu
+  hosts: firewall
+  become: true
+  roles:
+    - nftables
+
+- name: Serveur web
+  hosts: dmz
+  become: true
+  roles:
+    - nginx
+
+- name: Serveur DNS
+  hosts: lan
+  become: true
+  roles:
+    - dnsmasq
+
+- name: Supervision
+  hosts: monitoring
+  become: true
+  roles:
+    - monitoring

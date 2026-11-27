@@ -1,0 +1,10 @@
+---
+profile: basic
+
+exclude_paths:
+  - .cache/
+  - .git/
+  - .venv/
+
+skip_list:
+  - yaml[line-length]

@@ -1,0 +1,59 @@
+---
+- name: Creer les dossiers du service web
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - /opt/web-dmz
+    - /opt/web-dmz/html
+    - /opt/web-dmz/conf
+    - /opt/web-dmz/certs
+
+- name: Generer un certificat auto-signe
+  ansible.builtin.command:
+    cmd: >-
+      openssl req -x509 -nodes -newkey rsa:2048 -days 365
+      -keyout /opt/web-dmz/certs/server.key
+      -out /opt/web-dmz/certs/server.crt
+      -subj "/CN={{ web_domain }}"
+    creates: /opt/web-dmz/certs/server.crt
+
+- name: Proteger la cle privee du certificat
+  ansible.builtin.file:
+    path: /opt/web-dmz/certs/server.key
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Deployer la page d'accueil
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /opt/web-dmz/html/index.html
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Deployer la configuration Nginx
+  ansible.builtin.template:
+    src: default.conf.j2
+    dest: /opt/web-dmz/conf/default.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Redemarrer le web
+
+- name: Deployer le fichier Docker Compose
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: /opt/web-dmz/docker-compose.yml
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Lancer le conteneur web
+  community.docker.docker_compose_v2:
+    project_src: /opt/web-dmz
+    state: present

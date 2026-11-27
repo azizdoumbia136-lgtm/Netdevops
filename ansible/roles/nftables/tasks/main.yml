@@ -1,0 +1,38 @@
+---
+- name: Installer nftables
+  ansible.builtin.apt:
+    name: nftables
+    state: present
+    update_cache: true
+
+- name: Activer le routage IPv4
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    sysctl_set: true
+    state: present
+    reload: true
+
+- name: Ne pas envoyer de redirections ICMP
+  ansible.posix.sysctl:
+    name: net.ipv4.conf.all.send_redirects
+    value: "0"
+    sysctl_set: true
+    state: present
+    reload: true
+
+- name: Deployer les regles nftables
+  ansible.builtin.template:
+    src: nftables.conf.j2
+    dest: /etc/nftables.conf
+    owner: root
+    group: root
+    mode: "0644"
+    validate: /usr/sbin/nft -c -f %s
+  notify: Recharger nftables
+
+- name: Activer le service nftables
+  ansible.builtin.service:
+    name: nftables
+    state: started
+    enabled: true

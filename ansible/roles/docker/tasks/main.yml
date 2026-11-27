@@ -1,0 +1,20 @@
+---
+- name: Installer Docker et Docker Compose
+  ansible.builtin.apt:
+    name:
+      - docker.io
+      - docker-compose-v2
+    state: present
+    update_cache: true
+
+- name: Demarrer et activer Docker
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Autoriser l'utilisateur devops a utiliser Docker
+  ansible.builtin.user:
+    name: devops
+    groups: docker
+    append: true

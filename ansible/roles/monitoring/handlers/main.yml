@@ -1,0 +1,6 @@
+---
+- name: Redemarrer Prometheus
+  ansible.builtin.command:
+    cmd: docker compose restart prometheus
+    chdir: /opt/monitoring
+  changed_when: true
